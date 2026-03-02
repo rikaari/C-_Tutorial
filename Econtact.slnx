@@ -1,0 +1,6 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="EcontactDB.db" />
+  </Folder>
+  <Project Path="Econtact.csproj" />
+</Solution>
