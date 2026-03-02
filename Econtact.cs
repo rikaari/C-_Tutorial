@@ -17,6 +17,13 @@ namespace Econtact
             {
                 Directory.CreateDirectory(imagesFolder);
             }
+
+            // Make Contact ID box readonly with placeholder
+            contactIDBox.ReadOnly = true;
+            contactIDBox.PlaceholderText = "Read-only (Auto-populated from search)";
+
+            // Set focus to first name box on startup
+            firstNameBox.Focus();
         }
 
         private void closeLogo_Click(object sender, EventArgs e)
@@ -125,6 +132,226 @@ namespace Econtact
             genderBox.SelectedIndex = -1;
             userPictureBox.Image = null;
             imagePath = "";
+        }
+
+        private void updateBtn_Click(object sender, EventArgs e)
+        {
+            string contactID = contactIDBox.Text.Trim();
+            string firstName = firstNameBox.Text.Trim();
+            string lastName = lastNameBox.Text.Trim();
+            string contactNumber = contactNumberBox.Text.Trim();
+            string address = addressBox.Text.Trim();
+            string gender = genderBox.Text.Trim();
+            string picture = string.IsNullOrEmpty(imagePath) ? "" : Path.GetFileName(imagePath);
+
+            // Check if contactID exists (must be populated from search first)
+            if (string.IsNullOrEmpty(contactID))
+            {
+                MessageBox.Show("Please search for a contact first before updating.", "No Contact Selected", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            // Validate all fields are filled
+            if (firstName == "" || lastName == "" || contactNumber == "" || address == "" || gender == "")
+            {
+                MessageBox.Show("Please fill in all fields.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            try
+            {
+                MySqlConnection conn = new MySqlConnection(connString);
+                using (conn)
+                {
+                    conn.Open();
+
+                    // Build UPDATE query - update all fields except contactID
+                    string query;
+                    if (!string.IsNullOrEmpty(picture))
+                    {
+                        // Update including picture
+                        query = "UPDATE contactDetails SET firstName=@first_name, lastName=@last_name, contactNumber=@contact_number, address=@address, gender=@gender, picture=@picture WHERE contactID=@contact_id";
+                    }
+                    else
+                    {
+                        // Update without changing picture
+                        query = "UPDATE contactDetails SET firstName=@first_name, lastName=@last_name, contactNumber=@contact_number, address=@address, gender=@gender WHERE contactID=@contact_id";
+                    }
+
+                    MySqlCommand cmd = new MySqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@contact_id", contactID);
+                    cmd.Parameters.AddWithValue("@first_name", firstName);
+                    cmd.Parameters.AddWithValue("@last_name", lastName);
+                    cmd.Parameters.AddWithValue("@contact_number", contactNumber);
+                    cmd.Parameters.AddWithValue("@address", address);
+                    cmd.Parameters.AddWithValue("@gender", gender);
+
+                    if (!string.IsNullOrEmpty(picture))
+                    {
+                        cmd.Parameters.AddWithValue("@picture", picture);
+                    }
+
+                    int rowsAffected = cmd.ExecuteNonQuery();
+
+                    if (rowsAffected == 1)
+                    {
+                        MessageBox.Show("Contact Updated Successfully!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        conn.Close();
+
+                        // Clear form fields after update
+                        contactIDBox.Clear();
+                        firstNameBox.Clear();
+                        lastNameBox.Clear();
+                        contactNumberBox.Clear();
+                        addressBox.Clear();
+                        genderBox.SelectedIndex = -1;
+                        userPictureBox.Image = null;
+                        imagePath = "";
+                    }
+                    else
+                    {
+                        MessageBox.Show("Failed to update contact. Please try again.", "Update Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("An error occurred while updating the contact: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void searchBtn_Click(object sender, EventArgs e)
+        {
+            string searchTerm = searchBox.Text.Trim();
+
+            if (string.IsNullOrEmpty(searchTerm))
+            {
+                MessageBox.Show("Please enter a first name or last name to search.", "Search Required", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            try
+            {
+                MySqlConnection conn = new MySqlConnection(connString);
+                using (conn)
+                {
+                    conn.Open();
+
+                    // Search by first name or last name
+                    string query = "SELECT contactID, firstName, lastName, contactNumber, address, gender, picture FROM contactDetails WHERE firstName LIKE @search_term OR lastName LIKE @search_term LIMIT 1";
+
+                    MySqlCommand cmd = new MySqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@search_term", "%" + searchTerm + "%");
+
+                    MySqlDataReader reader = cmd.ExecuteReader();
+
+                    if (reader.Read())
+                    {
+                        // Populate all form fields with found contact
+                        contactIDBox.Text = reader["contactID"].ToString();
+                        firstNameBox.Text = reader["firstName"].ToString();
+                        lastNameBox.Text = reader["lastName"].ToString();
+                        contactNumberBox.Text = reader["contactNumber"].ToString();
+                        addressBox.Text = reader["address"].ToString();
+                        genderBox.Text = reader["gender"].ToString();
+
+                        // Load and display picture if exists
+                        string pictureFileName = reader["picture"].ToString();
+                        if (!string.IsNullOrEmpty(pictureFileName))
+                        {
+                            string picturePath = Path.Combine(imagesFolder, pictureFileName);
+                            if (File.Exists(picturePath))
+                            {
+                                userPictureBox.Image = Image.FromFile(picturePath);
+                                userPictureBox.SizeMode = PictureBoxSizeMode.StretchImage;
+                                imagePath = picturePath;
+                            }
+                        }
+                        else
+                        {
+                            userPictureBox.Image = null;
+                            imagePath = "";
+                        }
+
+                        MessageBox.Show($"Contact found: {reader["firstName"]} {reader["lastName"]}", "Search Result", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                    else
+                    {
+                        MessageBox.Show($"No contact found with name: {searchTerm}", "Not Found", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+
+                    reader.Close();
+                    conn.Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("An error occurred while searching: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void deleteBtn_Click(object sender, EventArgs e)
+        {
+            string contactID = contactIDBox.Text.Trim();
+            string firstName = firstNameBox.Text.Trim();
+            string lastName = lastNameBox.Text.Trim();
+
+            // Check if contactID exists (must be populated from search first)
+            if (string.IsNullOrEmpty(contactID))
+            {
+                MessageBox.Show("Please search for a contact first before deleting.", "No Contact Selected", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            // Confirm deletion with user
+            DialogResult result = MessageBox.Show($"Are you sure you want to delete the contact: {firstName} {lastName}?\n\nThis action cannot be undone.", 
+                "Confirm Delete", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+
+            if (result == DialogResult.No)
+            {
+                return;
+            }
+
+            try
+            {
+                MySqlConnection conn = new MySqlConnection(connString);
+                using (conn)
+                {
+                    conn.Open();
+
+                    // Delete contact by contactID
+                    string query = "DELETE FROM contactDetails WHERE contactID=@contact_id";
+
+                    MySqlCommand cmd = new MySqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@contact_id", contactID);
+
+                    int rowsAffected = cmd.ExecuteNonQuery();
+
+                    if (rowsAffected == 1)
+                    {
+                        MessageBox.Show("Contact Deleted Successfully!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        conn.Close();
+
+                        // Clear form fields after deletion
+                        contactIDBox.Clear();
+                        firstNameBox.Clear();
+                        lastNameBox.Clear();
+                        contactNumberBox.Clear();
+                        addressBox.Clear();
+                        genderBox.SelectedIndex = -1;
+                        userPictureBox.Image = null;
+                        imagePath = "";
+                    }
+                    else
+                    {
+                        MessageBox.Show("Failed to delete contact. Please try again.", "Delete Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("An error occurred while deleting the contact: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
     }
 }

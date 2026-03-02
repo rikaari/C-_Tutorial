@@ -72,7 +72,7 @@
             // lastNameBox
             // 
             lastNameBox.BorderStyle = BorderStyle.None;
-            lastNameBox.Location = new Point(151, 204);
+            lastNameBox.Location = new Point(151, 226);
             lastNameBox.Name = "lastNameBox";
             lastNameBox.Size = new Size(137, 20);
             lastNameBox.TabIndex = 4;
@@ -81,7 +81,7 @@
             // 
             lastName.AutoSize = true;
             lastName.Font = new Font("Segoe UI", 10.2F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            lastName.Location = new Point(31, 202);
+            lastName.Location = new Point(31, 224);
             lastName.Name = "lastName";
             lastName.RightToLeft = RightToLeft.Yes;
             lastName.Size = new Size(94, 23);
@@ -91,7 +91,7 @@
             // firstNameBox
             // 
             firstNameBox.BorderStyle = BorderStyle.None;
-            firstNameBox.Location = new Point(151, 163);
+            firstNameBox.Location = new Point(151, 185);
             firstNameBox.Name = "firstNameBox";
             firstNameBox.Size = new Size(137, 20);
             firstNameBox.TabIndex = 6;
@@ -100,7 +100,7 @@
             // 
             firstName.AutoSize = true;
             firstName.Font = new Font("Segoe UI", 10.2F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            firstName.Location = new Point(31, 160);
+            firstName.Location = new Point(31, 182);
             firstName.Name = "firstName";
             firstName.RightToLeft = RightToLeft.Yes;
             firstName.Size = new Size(97, 23);
@@ -110,7 +110,7 @@
             // contactNumberBox
             // 
             contactNumberBox.BorderStyle = BorderStyle.None;
-            contactNumberBox.Location = new Point(151, 250);
+            contactNumberBox.Location = new Point(151, 272);
             contactNumberBox.Name = "contactNumberBox";
             contactNumberBox.Size = new Size(137, 20);
             contactNumberBox.TabIndex = 8;
@@ -119,7 +119,7 @@
             // 
             contactNumber.AutoSize = true;
             contactNumber.Font = new Font("Segoe UI", 10.2F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            contactNumber.Location = new Point(31, 247);
+            contactNumber.Location = new Point(31, 269);
             contactNumber.Name = "contactNumber";
             contactNumber.RightToLeft = RightToLeft.Yes;
             contactNumber.Size = new Size(100, 23);
@@ -129,7 +129,7 @@
             // addressBox
             // 
             addressBox.BorderStyle = BorderStyle.None;
-            addressBox.Location = new Point(151, 293);
+            addressBox.Location = new Point(151, 315);
             addressBox.Multiline = true;
             addressBox.Name = "addressBox";
             addressBox.Size = new Size(137, 53);
@@ -139,7 +139,7 @@
             // 
             address.AutoSize = true;
             address.Font = new Font("Segoe UI", 10.2F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            address.Location = new Point(31, 290);
+            address.Location = new Point(31, 312);
             address.Name = "address";
             address.RightToLeft = RightToLeft.Yes;
             address.Size = new Size(74, 23);
@@ -190,6 +190,7 @@
             updateBtn.TabIndex = 14;
             updateBtn.Text = "Update";
             updateBtn.UseVisualStyleBackColor = false;
+            updateBtn.Click += updateBtn_Click;
             // 
             // clearBtn
             // 
@@ -216,6 +217,7 @@
             deleteBtn.TabIndex = 15;
             deleteBtn.Text = "Delete";
             deleteBtn.UseVisualStyleBackColor = false;
+            deleteBtn.Click += deleteBtn_Click;
             // 
             // search
             // 
@@ -272,16 +274,16 @@
             // contactIDBox
             // 
             contactIDBox.BorderStyle = BorderStyle.None;
-            contactIDBox.Location = new Point(154, 117);
+            contactIDBox.Location = new Point(31, 138);
             contactIDBox.Name = "contactIDBox";
-            contactIDBox.Size = new Size(137, 20);
+            contactIDBox.Size = new Size(326, 20);
             contactIDBox.TabIndex = 24;
             // 
             // contactIDLbl
             // 
             contactIDLbl.AutoSize = true;
             contactIDLbl.Font = new Font("Segoe UI", 10.2F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            contactIDLbl.Location = new Point(34, 114);
+            contactIDLbl.Location = new Point(125, 94);
             contactIDLbl.Name = "contactIDLbl";
             contactIDLbl.RightToLeft = RightToLeft.Yes;
             contactIDLbl.Size = new Size(95, 23);
@@ -299,6 +301,7 @@
             searchBtn.TabIndex = 25;
             searchBtn.Text = "Search";
             searchBtn.UseVisualStyleBackColor = false;
+            searchBtn.Click += searchBtn_Click;
             // 
             // uploadPictureBtn
             // 

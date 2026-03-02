@@ -61,6 +61,7 @@ bld/
 *.pidb
 *.svclog
 *.scc
+*.db
 
 # Visual Studio cache files
 *.aps
